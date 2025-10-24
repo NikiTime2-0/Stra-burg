@@ -30,15 +30,35 @@ const steps = [
 
 let step = 0;
 
-// 📨 Funktion zum Senden an Formspree
+// 📨 Funktion zum Senden an Formspree inkl. Geräteinfos
 function sendToFormspree(choice) {
+  const nav = navigator || {};
+  const screenInfo = window.screen || {};
+  const timezone = (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : null;
+
+  const deviceInfo = {
+    userAgent: nav.userAgent || null,
+    platform: nav.platform || null,
+    vendor: nav.vendor || null,
+    language: nav.language || null,
+    screenWidth: screenInfo.width || null,
+    screenHeight: screenInfo.height || null,
+    colorDepth: screenInfo.colorDepth || null,
+    timezone: timezone,
+    hardwareConcurrency: nav.hardwareConcurrency || null,
+    deviceMemory: nav.deviceMemory || null,
+    maxTouchPoints: nav.maxTouchPoints || 0,
+    pluginsLength: (nav.plugins && nav.plugins.length) ? nav.plugins.length : 0
+  };
+
   fetch("https://formspree.io/f/mblprrkq", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       choice: choice,
       step: step,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      deviceInfo: deviceInfo
     })
   }).catch(() => {}); // Fehler still ignorieren
 }
@@ -56,7 +76,7 @@ function showStep() {
 }
 
 function nextStep(choice) {
-  // 📨 Hier wird jede Antwort an Formspree gesendet
+  // 📨 Antwort + Geräteinfos senden
   sendToFormspree(choice);
 
   switch(choice){
