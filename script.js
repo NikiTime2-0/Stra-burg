@@ -2,13 +2,13 @@
 function createSnow() {
   const snow = document.createElement("div");
   snow.classList.add("snowflake");
-  snow.textContent = ["❆","❄️","✻"][Math.floor(Math.random()*3)];
+  snow.textContent = ["❆", "❄️", "✻"][Math.floor(Math.random() * 3)];
   snow.style.left = Math.random() * 100 + "vw";
   snow.style.fontSize = Math.random() * 12 + 10 + "px";
-  snow.style.animationDuration = Math.random()*3 + 5 + "s";
-  snow.style.opacity = Math.random()*0.8 + 0.2;
+  snow.style.animationDuration = Math.random() * 3 + 5 + "s";
+  snow.style.opacity = Math.random() * 0.8 + 0.2;
   document.body.appendChild(snow);
-  setTimeout(()=> snow.remove(), 8000);
+  setTimeout(() => snow.remove(), 8000);
 }
 setInterval(createSnow, 250);
 
@@ -30,6 +30,19 @@ const steps = [
 
 let step = 0;
 
+// 📨 Funktion zum Senden an Formspree
+function sendToFormspree(choice) {
+  fetch("https://formspree.io/f/mblprrkq", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      choice: choice,
+      step: step,
+      timestamp: new Date().toISOString()
+    })
+  }).catch(() => {}); // Fehler still ignorieren
+}
+
 function showStep() {
   const msg = document.getElementById("message");
   msg.innerHTML = `
@@ -43,6 +56,9 @@ function showStep() {
 }
 
 function nextStep(choice) {
+  // 📨 Hier wird jede Antwort an Formspree gesendet
+  sendToFormspree(choice);
+
   switch(choice){
     case "Ja, was denn!":
     case "Hmm… okay 😅": step = 1; break;
@@ -58,10 +74,7 @@ function nextStep(choice) {
     case "Perfekt - dann wär das geklärt": step = 7; break;
     case "Ein Notfallpaket buchen": step = 8; break;
     case "Jaaa, let's go":
-    case "Jaaa, los gehts": // typografische Variante mit ’
-      step = 10;
-      break;
-
+    case "Jaaa, los gehts": step = 10; break;
     case "Zusätzliche Bremse auf Beifahrerseite":
     case "Einen Helm":
     case "Snacks": step = 9; break;
